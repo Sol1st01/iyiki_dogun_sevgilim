@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İyi Ki Doğdun Sevgilim!</title>
+    <style>
+        /* Temel Sayfa Stili */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fcece2; /* Görseldeki arka plan rengi */
+            color: #333;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Konfeti Efekti */
+        .confetti-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff99cc;
+            border-radius: 2px;
+            animation: confetti-fall 4s linear infinite;
+        }
+        .confetti:nth-child(2n) { background-color: #99ff99; }
+        .confetti:nth-child(3n) { background-color: #66ccff; }
+        .confetti:nth-child(4n) { background-color: #ffcc66; }
+        .confetti:nth-child(5n) { background-color: #ff6666; }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Ana İçerik Konteyneri */
+        .content {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Başlık Metni */
+        h1 {
+            font-size: 32px;
+            color: #5d4037;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .heart {
+            color: #f44336;
+        }
+
+        /* Alt Bilgi Metni */
+        .info-text {
+            font-size: 13px;
+            color: #8d6e63;
+            margin-top: 0;
+            margin-bottom: 20px;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        /* Pop-up Mesaj Kutusu (Başlangıçta Gizli) */
+        .message-box {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            max-width: 350px;
+            margin: 0 auto 30px;
+            position: relative;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Mumlar sönünce tetiklenecek sınıf */
+        .message-box.show {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+            height: auto;
+            padding: 25px 30px;
+            margin: 0 auto 30px;
+        }
+
+        .message-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .confetti-emoji {
+            font-size: 20px;
+        }
+        .message-body {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 0;
+        }
+        .heart-emoji {
+            color: #f44336;
+        }
+
+        /* Pasta ve Mum Konteyneri */
+        .cake-area {
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+            cursor: pointer; /* Tıklanabilir olduğunu göstermek için */
+        }
+
+        /* Çikolatalı Pasta */
+        .cake-body {
+            width: 250px;
+            height: 120px;
+            background: #4e342e; /* Çikolata rengi */
+            border-radius: 50% 50% 20px 20px / 15% 15% 20px 20px;
+            box-shadow: inset 0 -15px 0 #3e2723;
+            position: relative;
+            transition: transform 0.1s ease;
+        }
+        
+        /* Tıklama anında hafif basılma efekti */
+        .cake-area:active .cake-body {
+            transform: scale(0.98);
+        }
+
+        .cake-body::before {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            z-index: -1;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Mumlar Konteyneri */
+        .candles {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 2;
+        }
+
+        /* Mum Tasarımı */
+        .candle {
+            width: 15px;
+            height: 70px;
+            background: #ffd54f;
+            border-radius: 8px;
+            position: relative;
+        }
+        .flame {
+            width: 12px;
+            height: 20px;
+            background: #ff6d00;
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px #ff6d00, 0 0 20px #ff6d00;
+            animation: flicker 0.1s ease-in-out infinite alternate;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .flame.off {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-10px) scale(0.1);
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) rotate(1deg); }
+            100% { transform: translateX(-50%) rotate(-1deg); }
+        }
+
+        /* 21 Numaraları */
+        .candle-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #bf360c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="confetti-container" id="confetti-container"></div>
+
+    <div class="content">
+        <h1>İyi Ki Doğdun Sevgilim! <span class="heart">❤️</span></h1>
+        <p class="info-text" id="info-text">Mumları söndürmek için mikrofona güçlüce üfle veya direkt pastanın üzerine tıkla!</p>
+
+        <div class="message-box" id="birthday-message">
+            <p class="message-title">Mutlu Yıllar! <span class="confetti-emoji">🎉</span></p>
+            <p class="message-body">Yeni yaşın sana tüm güzellikleri, mutluluğu ve huzoru getirsin. İyi ki varsın, iyi ki doğdun! Seni çok seviyorum. <span class="heart-emoji">💕</span></p>
+        </div>
+
+        <div class="cake-area" id="cake-area">
+            <div class="candles">
+                <div class="candle">
+                    <div class="flame" id="flame-1"></div>
+                    <span class="candle-number">2</span>
+                </div>
+                <div class="candle">
+                    <div class="flame" id="flame-2"></div>
+                    <span class="candle-number">1</span>
+                </div>
+            </div>
+            <div class="cake-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // Konfeti Oluşturma
+        const confettiContainer = document.getElementById('confetti-container');
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.animationDelay = Math.random() * 4 + 's';
+            confettiContainer.appendChild(confetti);
+        }
+
+        // Elementleri Seçme
+        const flame1 = document.getElementById('flame-1');
+        const flame2 = document.getElementById('flame-2');
+        const messageBox = document.getElementById('birthday-message');
+        const infoText = document.getElementById('info-text');
+        const cakeArea = document.getElementById('cake-area');
+        let areCandlesOff = false;
+
+        // 1. SEÇENEK: MİKROFON İLE SÖNDÜRME
+        async function startMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioContext = new AudioContext();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                const analyser = audioContext.createAnalyser();
+                microphone.connect(analyser);
+
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                const blowThreshold = 200; // Üfleme hassasiyeti
+
+                function checkVolume() {
+                    if (areCandlesOff) return;
+
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    let volume = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        volume += dataArray[i];
+                    }
+                    volume = volume / bufferLength;
+
+                    if (volume > blowThreshold) {
+                        sondurMumları();
+                    }
+
+                    requestAnimationFrame(checkVolume);
+                }
+
+                checkVolume();
+
+            } catch (err) {
+                // Mikrofon reddedilirse veya desteklenmezse konsola yaz, süreç tıklama ile devam edebilir
+                console.log("Mikrofon aktif edilmedi, tıklama seçeneği hazır.");
+            }
+        }
+
+        // 2. SEÇENEK: TIKLAMA İLE SÖNDÜRME
+        cakeArea.addEventListener('click', () => {
+            sondurMumları();
+        });
+
+        // Ortak Söndürme Fonksiyonu
+        function sondurMumları() {
+            if (areCandlesOff) return;
+            areCandlesOff = true;
+            
+            // Mum alevlerini kapat
+            flame1.classList.add('off');
+            flame2.classList.add('off');
+            
+            // Bilgilendirme yazısını gizle
+            infoText.style.opacity = '0';
+            setTimeout(() => { infoText.style.display = 'none'; }, 300);
+
+            // Yarım saniye sonra mektup kutusunu tatlı bir animasyonla aç
+            setTimeout(() => {
+                messageBox.classList.add('show');
+            }, 500);
+        }
+
+        // Sayfa açılınca mikrofonu dinlemeye başla
+        window.addEventListener('load', startMicrophone);
+    </script>
+</body>
+</html>

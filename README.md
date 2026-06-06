@@ -1,1 +1,0 @@
-# -yi-ki-Do-dun-Sevgilim
